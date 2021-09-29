@@ -85,7 +85,7 @@ class Connection:
                     cookie=self.cookie,
                     header=self.header,
                     on_message=lambda socket, message: self._on_message(socket, message),
-                    on_close=lambda socket: self._on_close(socket)
+                    on_close=lambda socket, code, msg: self._on_close(socket, code, msg)
                 )
                 self.websocket.on_open = lambda socket: self._on_open(socket)
 
@@ -147,11 +147,11 @@ class Connection:
         else:
             self.logger.warning('Message not supported. (Message: {})'.format(message))
 
-    def _on_close(self, socket):
+    def _on_close(self, socket, close_status_code, close_msg):
         """
         Called when the connection was closed.
         """
-        self.logger.debug('Connection closed.')
+        self.logger.debug('Connection closed with status {} and message {}.'.format(close_status_code, close_msg))
 
         for subscription in self.subscriptions.values():
             if subscription.state == 'subscribed':
